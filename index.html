@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeafBook Store - ร้านขายสินค้าดิจิทัลและ E-Book คุณภาพ</title>
+  <meta name="description" content="ตลาดซื้อขายสินค้าดิจิทัล E-Book (PDF), ซอร์สโค้ด, เทมเพลต และสื่อการเรียนรู้ ดาวน์โหลดได้ทันทีหลังชำระเงิน">
+  
+  <!-- Google Fonts: Prompt & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  
+  <!-- Supabase JS Client (v2) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ======================================================== -->
+  <!-- TOP HEADER & NAVIGATION -->
+  <!-- ======================================================== -->
+  <header class="top-header">
+    <div class="header-container">
+      <!-- Brand Logo -->
+      <a href="#" class="brand-logo" onclick="switchTab('store'); return false;">
+        <div class="logo-icon">
+          <i data-lucide="book-open"></i>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">LeafBook</span>
+          <span class="logo-badge">Digital Store</span>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="search-wrapper">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="searchInput" placeholder="ค้นหา E-Book, ซอร์สโค้ด, เทมเพลต..." oninput="handleSearch()">
+        <button id="clearSearchBtn" class="clear-search-btn hidden" onclick="clearSearch()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <!-- Header Action Buttons -->
+      <div class="header-actions">
+        <!-- Supabase Cloud Connection Status Badge -->
+        <div id="dbStatusBadge" class="db-status-badge connecting">
+          <span class="status-dot"></span>
+          <span id="dbStatusText">Supabase Sync</span>
+        </div>
+
+        <!-- Tab Nav: หน้าร้านค้า -->
+        <button class="nav-tab-btn active" id="navStoreBtn" onclick="switchTab('store')">
+          <i data-lucide="store"></i>
+          <span>ร้านค้า</span>
+        </button>
+
+        <!-- Tab Nav: ลงขายสินค้า (Sell) -->
+        <button class="nav-tab-btn sell-btn" id="navSellBtn" onclick="switchTab('sell')">
+          <i data-lucide="plus-circle"></i>
+          <span>ลงขายสินค้า</span>
+        </button>
+
+        <!-- Tab Nav: คำสั่งซื้อ & ดาวน์โหลด -->
+        <button class="nav-tab-btn" id="navOrdersBtn" onclick="switchTab('orders')">
+          <i data-lucide="download-cloud"></i>
+          <span>ไฟล์ของฉัน</span>
+          <span id="ordersCountBadge" class="badge-pill hidden">0</span>
+        </button>
+
+        <!-- Cart Drawer Toggle Button -->
+        <button class="cart-btn" onclick="toggleCartDrawer(true)" id="headerCartBtn">
+          <i data-lucide="shopping-cart"></i>
+          <span id="cartCountBadge" class="cart-badge">0</span>
+        </button>
+
+        <!-- User Profile Pill -->
+        <div class="user-pill" onclick="switchTab('profile')">
+          <img id="userAvatarImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="User">
+          <span id="userNameText" class="user-name">Creator</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- MAIN CONTAINER WITH TABS -->
+  <!-- ======================================================== -->
+  <main class="main-content">
+    
+    <!-- ---------------------------------------------------- -->
+    <!-- TAB 1: STORE FRONT (หน้าร้านค้า) -->
+    <!-- ---------------------------------------------------- -->
+    <section id="tabStore" class="tab-view active">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <div class="hero-tag">
+            <i data-lucide="sparkles"></i>
+            <span>Supabase Cloud Database • ดาวน์โหลดไฟล์ได้ 24 ชม.</span>
+          </div>
+          <h1 class="hero-title">
+            ศูนย์รวม <span class="gradient-text">E-Book & ซอร์สโค้ด</span> คุณภาพสูง
+          </h1>
+          <p class="hero-desc">
+            ยกระดับผลงานและทักษะของคุณด้วยหนังสือดิจิทัล (PDF), เทมเพลต และแอปพลิเคชันสำเร็จรูป จัดส่งไฟล์ทันทีหลังชำระเงิน
+          </p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="scrollToElement('productsSection')">
+              <i data-lucide="shopping-bag"></i>
+              <span>เลือกดูสินค้าทั้งหมด</span>
+            </button>
+            <button class="btn btn-secondary" onclick="switchTab('sell')">
+              <i data-lucide="upload"></i>
+              <span>ลงขาย E-Book ของคุณ</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-stats-card">
+          <div class="stat-item">
+            <div class="stat-number" id="totalProductsCount">5+</div>
+            <div class="stat-label">สินค้าดิจิทัล</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Supabase Cloud</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">โหลดทันที</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Pills Bar -->
+      <div class="categories-bar" id="productsSection">
+        <div class="categories-title">
+          <i data-lucide="layers"></i>
+          <span>หมวดหมู่สินค้า:</span>
+        </div>
+        <div class="categories-list" id="categoryPillsList">
+          <button class="cat-pill active" onclick="selectCategory('all')">ทั้งหมด</button>
+          <button class="cat-pill" onclick="selectCategory('ebook')">📚 E-Book</button>
+          <button class="cat-pill" onclick="selectCategory('software')">💻 ซอฟต์แวร์ & โค้ด</button>
+          <button class="cat-pill" onclick="selectCategory('template')">📋 เทมเพลต</button>
+          <button class="cat-pill" onclick="selectCategory('course')">🎓 คอร์สออนไลน์</button>
+        </div>
+      </div>
+
+      <!-- Products Grid Section -->
+      <div class="products-header">
+        <h2 class="section-title">
+          <span id="currentCategoryTitle">สินค้าทั้งหมด</span>
+          <span id="productsCounterText" class="badge-count">(กำลังโหลด...)</span>
+        </h2>
+        <div class="filter-actions">
+          <select id="sortSelect" onchange="handleSortChange()" class="sort-select">
+            <option value="featured">แนะนำ (Featured)</option>
+            <option value="price-asc">ราคา: ต่ำไปสูง</option>
+            <option value="price-desc">ราคา: สูงไปต่ำ</option>
+            <option value="newest">มาใหม่ล่าสุด</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Card Container -->
+      <div class="product-grid" id="productGridContainer">
+        <!-- Rendered by JavaScript -->
+        <div class="loading-state">
+          <i data-lucide="loader-2" class="spin-icon"></i>
+          <p>กำลังเชื่อมต่อข้อมูลจาก Supabase...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------- -->
+    <!-- TAB 2: SELL & UPLOAD PDF (หน้าลงขายสินค้า) -->
+    <!-- ---------------------------------------------------- -->
+    <section id="tabSell" class="tab-view">
+      <div class="sell-page-container">
+        <!-- Header banner -->
+        <div class="sell-header-card">
+          <div class="sell-header-text">
+            <div class="badge-tag">
+              <i data-lucide="sparkles"></i>
+              <span>LeafBook Creator Studio</span>
+            </div>
+            <h2>ลงขายสินค้าดิจิทัล & อัปโหลด E-Book (PDF)</h2>
+            <p>ผู้ใช้งานทุกคนสามารถลงขายผลงานได้ทันที ข้อมูลจะถูกบันทึกลง Supabase Database พร้อมระบบจัดเก็บไฟล์ในตัว</p>
+          </div>
+          <div class="seller-identity">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Seller">
+            <div>
+              <span class="seller-role">ผู้ลงขาย</span>
+              <strong id="sellerNameLabel">Pamika Creator</strong>
+              <small id="sellerEmailLabel">creator@leafbook.store</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="sell-layout-grid">
+          <!-- Form Left Column -->
+          <div class="sell-form-card">
+            <div class="form-card-title">
+              <i data-lucide="plus-circle" class="icon-blue"></i>
+              <h3>กรอกข้อมูลสินค้าและอัปโหลดไฟล์</h3>
+            </div>
+
+            <form id="sellProductForm" onsubmit="handlePublishProduct(event)">
+              
+              <!-- PDF / E-BOOK UPLOAD DROPZONE -->
+              <div class="upload-section-box">
+                <div class="upload-box-header">
+                  <div class="flex-align gap-2">
+                    <i data-lucide="book-open" class="icon-indigo"></i>
+                    <div>
+                      <strong>อัปโหลดไฟล์ PDF / E-Book สำหรับผู้ซื้อ</strong>
+                      <p class="text-sub">ไฟล์จะถูกจัดเตรียมสำหรับดาวน์โหลดหลังชำระเงิน</p>
+                    </div>
+                  </div>
+                  <span id="storageBadge" class="storage-badge">☁️ Supabase Cloud Storage</span>
+                </div>
+
+                <!-- Hidden Input -->
+                <input type="file" id="ebookFileInput" accept=".pdf,.epub,.docx,.zip,.rar" onchange="handleFilePicked(event)" style="display: none;">
+
+                <!-- Drag & Drop Zone -->
+                <div id="dropZone" class="drop-zone" onclick="document.getElementById('ebookFileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                  <div class="drop-icon">
+                    <i data-lucide="cloud-upload"></i>
+                  </div>
+                  <h4>คลิกเพื่อเลือกไฟล์ หรือ ลากไฟล์ PDF / E-Book มาวางที่นี่</h4>
+                  <p>รองรับไฟล์ <strong>.PDF, .EPUB, .DOCX, .ZIP</strong> (สูงสุด 80 MB)</p>
+                  <button type="button" class="btn btn-browse" onclick="event.stopPropagation(); document.getElementById('ebookFileInput').click();">
+                    <i data-lucide="upload"></i>
+                    <span>เลือกไฟล์ PDF จากเครื่อง</span>
+                  </button>
+                </div>
+
+                <!-- File Status Card (Shown when file is selected) -->
+                <div id="fileStatusCard" class="file-status-card hidden">
+                  <div class="file-info-left">
+                    <div class="file-type-icon">
+                      <i data-lucide="file-check"></i>
+                    </div>
+                    <div>
+                      <strong id="uploadedFileName">my-ebook.pdf</strong>
+                      <div class="file-meta">
+                        <span id="uploadedFileSizeBadge" class="meta-pill">3.4 MB</span>
+                        <span id="uploadedFileTypeBadge" class="meta-pill">PDF (E-Book)</span>
+                        <span class="meta-ready">พร้อมให้ดาวน์โหลด</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="file-info-actions">
+                    <button type="button" class="btn-text" onclick="document.getElementById('ebookFileInput').click()">เปลี่ยนไฟล์</button>
+                    <button type="button" class="btn-icon-danger" onclick="removeUploadedFile()"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </div>
+
+                <!-- Presets: Click to test with sample PDFs -->
+                <div class="preset-samples-box">
+                  <span class="preset-title">หรือคลิกทดลองใช้ไฟล์ E-Book ตัวอย่าง (1-Click Test):</span>
+                  <div class="preset-buttons">
+                    <button type="button" class="preset-btn" onclick="applyPresetSample('nextjs')">
+                      <span>📘</span>
+                      <div class="text-left">
+                        <strong>คู่มือ Next.js & Supabase 2026.pdf</strong>
+                        <small>ขนาด 3.4 MB • หนังสือดิจิทัล</small>
+                      </div>
+                    </button>
+                    <button type="button" class="preset-btn" onclick="applyPresetSample('ai')">
+                      <span>📗</span>
+                      <div class="text-left">
+                        <strong>AI Prompt Mastery Handbook.pdf</strong>
+                        <small>ขนาด 2.8 MB • คู่มือคำสั่ง AI</small>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1. ชื่อสินค้า -->
+              <div class="form-group">
+                <label for="productTitleInput">ชื่อสินค้าดิจิทัล / ชื่อหนังสือ <span class="req">*</span></label>
+                <input type="text" id="productTitleInput" required placeholder="เช่น คู่มือการเขียน AI Prompt หรือ ระบบจองห้องประชุม Next.js">
+              </div>
+
+              <!-- 2. หมวดหมู่ -->
+              <div class="form-group">
+                <label>หมวดหมู่สินค้า <span class="req">*</span></label>
+                <div class="cat-selector-grid">
+                  <label class="cat-radio-label active" onclick="selectFormCategory('ebook', this)">
+                    <input type="radio" name="productCat" value="ebook" checked>
+                    <span>📚 E-Book</span>
+                  </label>
+                  <label class="cat-radio-label" onclick="selectFormCategory('software', this)">
+                    <input type="radio" name="productCat" value="software">
+                    <span>💻 ซอฟต์แวร์ & โค้ด</span>
+                  </label>
+                  <label class="cat-radio-label" onclick="selectFormCategory('template', this)">
+                    <input type="radio" name="productCat" value="template">
+                    <span>📋 เทมเพลต</span>
+                  </label>
+                  <label class="cat-radio-label" onclick="selectFormCategory('course', this)">
+                    <input type="radio" name="productCat" value="course">
+                    <span>🎓 คอร์สออนไลน์</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 3. ราคา -->
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="productPriceInput">ราคาขายจริง (บาท) <span class="req">*</span></label>
+                  <div class="input-with-icon">
+                    <span class="currency-symbol">฿</span>
+                    <input type="number" id="productPriceInput" required min="1" value="199">
+                  </div>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="productOriginalPriceInput">ราคาเต็มก่อนลด (บาท)</label>
+                  <div class="input-with-icon">
+                    <span class="currency-symbol">฿</span>
+                    <input type="number" id="productOriginalPriceInput" min="0" value="390">
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. คำอธิบาย -->
+              <div class="form-group">
+                <label for="productDescInput">คำอธิบายสินค้า <span class="req">*</span></label>
+                <textarea id="productDescInput" rows="3" required placeholder="ระบุเนื้อหา สิ่งที่จะได้รับ จุดเด่น หรือแนวทางการเรียนรู้..."></textarea>
+              </div>
+
+              <!-- 5. หน้าปกสินค้า -->
+              <div class="form-group">
+                <label for="productCoverInput">รูปภาพหน้าปกสินค้า (URL หรือเลือกภาพด้านล่าง)</label>
+                <input type="text" id="productCoverInput" value="/covers/ebook-store-guide-cover.jpg">
+                <div class="preset-covers-chips">
+                  <span class="preset-label">เลือกหน้าปก:</span>
+                  <button type="button" class="cover-chip active" onclick="setCoverPreset('/covers/ebook-store-guide-cover.jpg', this)">E-Book Guide</button>
+                  <button type="button" class="cover-chip" onclick="setCoverPreset('/covers/taskmanager-code-cover.jpg', this)">Software</button>
+                  <button type="button" class="cover-chip" onclick="setCoverPreset('/covers/media-player-code-cover.jpg', this)">Media Player</button>
+                  <button type="button" class="cover-chip" onclick="setCoverPreset('/covers/ui-digital-shop.png', this)">AI Design</button>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="submitProductBtn" class="btn btn-submit-product">
+                <i data-lucide="plus-circle"></i>
+                <span id="submitBtnText">ลงขายสินค้าทันที (Publish to Supabase)</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Preview & My Products Right Column -->
+          <div class="sell-sidebar-col">
+            <!-- Live Preview Card -->
+            <div class="preview-card-box">
+              <div class="preview-header">
+                <i data-lucide="eye"></i>
+                <span>ตัวอย่างแสดงผลหน้าร้าน (Live Preview)</span>
+              </div>
+              <div class="product-card preview-card">
+                <div class="card-image-box">
+                  <img id="previewCoverImg" src="/covers/ebook-store-guide-cover.jpg" alt="Preview">
+                  <span id="previewCategoryBadge" class="card-cat-badge">E-Book</span>
+                  <span id="previewFileTypeBadge" class="card-file-badge">PDF (E-Book)</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-author">ผู้ลงขาย: <strong id="previewAuthorLabel">Creator</strong></div>
+                  <h4 id="previewTitleLabel" class="card-title">ชื่อสินค้าของคุณจะแสดงตรงนี้</h4>
+                  <p id="previewDescLabel" class="card-desc">คำอธิบาย จุดเด่น และรายละเอียดไฟล์ E-Book...</p>
+                  <div class="card-footer">
+                    <div class="price-box">
+                      <span id="previewPriceLabel" class="current-price">฿199</span>
+                      <span id="previewOriginalPriceLabel" class="old-price">฿390</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- My Published Products Box -->
+            <div class="my-products-box">
+              <div class="my-products-header">
+                <div class="flex-align gap-2">
+                  <i data-lucide="layers" class="icon-purple"></i>
+                  <h4>สินค้าที่คุณลงขาย</h4>
+                </div>
+                <span id="myProductsCountBadge" class="badge-pill">0</span>
+              </div>
+              <div id="myProductsListContainer" class="my-products-list">
+                <!-- Rendered by JS -->
+                <p class="empty-hint">ยังไม่มีสินค้าที่คุณลงขาย</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------- -->
+    <!-- TAB 3: MY ORDERS & DOWNLOADS (ดาวน์โหลดไฟล์ที่สั่งซื้อ) -->
+    <!-- ---------------------------------------------------- -->
+    <section id="tabOrders" class="tab-view">
+      <div class="orders-page-container">
+        <div class="orders-header">
+          <div>
+            <h2>คลังสินค้า & ดาวน์โหลดไฟล์ของฉัน</h2>
+            <p>รายการ E-Book และซอร์สโค้ดที่คุณเคยสั่งซื้อ สามารถคลิกดาวน์โหลดได้ทันทีตลอด 24 ชั่วโมง</p>
+          </div>
+          <button class="btn btn-secondary" onclick="switchTab('store')">
+            <i data-lucide="shopping-cart"></i>
+            <span>เลือกซื้อสินค้าเพิ่ม</span>
+          </button>
+        </div>
+
+        <div id="ordersListContainer" class="orders-list-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------- -->
+    <!-- TAB 4: USER PROFILE & SETTINGS -->
+    <!-- ---------------------------------------------------- -->
+    <section id="tabProfile" class="tab-view">
+      <div class="profile-page-container">
+        <div class="profile-card">
+          <div class="profile-banner"></div>
+          <div class="profile-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Avatar">
+            <span class="vip-badge">VIP Member</span>
+          </div>
+          <div class="profile-details">
+            <h2 id="profileNameDisplay">Pamika Nanchamrus</h2>
+            <p id="profileEmailDisplay">pamika.th@rmuti.ac.th</p>
+            <div class="profile-chips">
+              <span class="chip"><i data-lucide="shield-check"></i> Creator Account</span>
+              <span class="chip"><i data-lucide="database"></i> Supabase Connected</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-stats-grid">
+          <div class="p-stat-card">
+            <i data-lucide="shopping-bag" class="stat-icon-blue"></i>
+            <strong id="statOrdersCount">0</strong>
+            <span>คำสั่งซื้อทั้งหมด</span>
+          </div>
+          <div class="p-stat-card">
+            <i data-lucide="book-open" class="stat-icon-emerald"></i>
+            <strong id="statEbooksCount">0</strong>
+            <span>E-Book ในครอบครอง</span>
+          </div>
+          <div class="p-stat-card">
+            <i data-lucide="award" class="stat-icon-amber"></i>
+            <strong>150</strong>
+            <span>คะแนนสะสม (Points)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- SLIDE-OVER CART DRAWER -->
+  <!-- ======================================================== -->
+  <div id="cartDrawerOverlay" class="cart-drawer-overlay hidden" onclick="toggleCartDrawer(false)">
+    <div class="cart-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div class="flex-align gap-2">
+          <i data-lucide="shopping-bag" class="icon-blue"></i>
+          <h3>ตะกร้าสินค้าของคุณ</h3>
+          <span id="drawerItemsCount" class="badge-count">(0 รายการ)</span>
+        </div>
+        <button class="close-drawer-btn" onclick="toggleCartDrawer(false)">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div id="cartItemsList" class="cart-items-list">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="drawer-footer">
+        <div class="summary-line">
+          <span>ยอดรวมสินค้า:</span>
+          <strong id="cartSubtotalText">฿0</strong>
+        </div>
+        <div class="summary-line discount">
+          <span>ส่วนลดพิเศษ:</span>
+          <strong id="cartDiscountText">-฿0</strong>
+        </div>
+        <div class="summary-total-line">
+          <span>ยอดชำระสุทธิ:</span>
+          <strong id="cartGrandTotalText" class="grand-total-amount">฿0</strong>
+        </div>
+
+        <button id="checkoutBtn" class="btn btn-checkout" onclick="openCheckoutModal()">
+          <i data-lucide="credit-card"></i>
+          <span>ชำระเงินทันที (PromptPay QR)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- CHECKOUT MODAL (PROMPTPAY QR SIMULATOR) -->
+  <!-- ======================================================== -->
+  <div id="checkoutModal" class="modal-overlay hidden" onclick="closeCheckoutModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="flex-align gap-2">
+          <i data-lucide="qr-code" class="icon-blue"></i>
+          <h3>สแกนจ่ายผ่านพร้อมเพย์ (PromptPay QR)</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeCheckoutModal()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body text-center">
+        <p class="qr-instruction">เปิดแอปธนาคารใดก็ได้ แล้วสแกน QR Code ด้านล่างเพื่อชำระเงิน</p>
+        
+        <!-- QR Box -->
+        <div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=LeafBook-PromptPay-Payment" alt="PromptPay QR" class="qr-image">
+          <div class="qr-badge">PromptPay • ธนาคารไทยทุกแห่ง</div>
+        </div>
+
+        <div class="order-amount-chip">
+          <span>ยอดเงินที่ต้องชำระ:</span>
+          <strong id="modalTotalAmount">฿0</strong>
+        </div>
+
+        <button class="btn btn-pay-confirm" onclick="confirmPaymentAndCompleteOrder()">
+          <i data-lucide="check-circle-2"></i>
+          <span>ฉันชำระเงินเรียบร้อยแล้ว (ยืนยันคำสั่งซื้อ)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TOAST NOTIFICATION POPUP -->
+  <!-- ======================================================== -->
+  <div id="toastNotification" class="toast-popup hidden">
+    <div class="toast-icon" id="toastIcon">
+      <i data-lucide="check"></i>
+    </div>
+    <span id="toastMessage">การดำเนินการสำเร็จ</span>
+  </div>
+
+  <!-- App Logic Script -->
+  <script src="app.js"></script>
+
+  <!-- Initialize Lucide icons on page load -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
